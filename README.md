@@ -28,19 +28,20 @@ yarn dev
 pnpm dev
 # hoặc
 bun dev
+```
 
-📂 Cấu trúc thư mục dự kiến (Routing)
+## 📂 Cấu trúc thư mục dự kiến (Routing)
+
 Dự án sử dụng cơ chế App Router của Next.js. Cấu trúc các trang sẽ tương ứng với các thư mục trong app/:
 
-app/login/page.tsx -> Trang đăng nhập
+- app/login/page.tsx -> Trang đăng nhập
 
-app/dashboard/page.tsx -> Trang Tổng quan
+- app/dashboard/page.tsx -> Trang Tổng quan
 
-app/dashboard/camera/page.tsx -> Trang Giám sát Camera
+- app/dashboard/camera/page.tsx -> Trang Giám sát Camera
 
-app/dashboard/alerts/page.tsx -> Trang Log Cảnh báo
+- app/dashboard/alerts/page.tsx -> Trang Log Cảnh báo
 
-app/dashboard/attendance/page.tsx -> Trang Nhật ký Điểm danh
+- app/dashboard/attendance/page.tsx -> Trang Nhật ký Điểm danh
 
-app/dashboard/users/page.tsx -> Trang Quản lý Nhân sự
-```
+- app/dashboard/users/page.tsx -> Trang Quản lý Nhân sự
