@@ -1,36 +1,46 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎯 Hệ thống Quản trị Điểm danh AI (Sync Attend Dashboard)
 
-## Getting Started
+Đây là giao diện Frontend (Client-side) được xây dựng bằng [Next.js](https://nextjs.org/) (App Router) để quản trị và giám sát hệ thống điểm danh tự động bằng Camera AI (ArcFace & YuNet).
 
-First, run the development server:
+## ✨ Các tính năng cốt lõi (Core Features)
+
+Hệ thống được chia thành các phân hệ quản lý chính:
+
+- **🔒 Đăng nhập (Login):** Phân quyền truy cập an toàn cho Admin và Nhân sự vận hành.
+- **📊 Tổng quan (Dashboard):** Xem nhanh các chỉ số KPI, thống kê số lượng người có mặt, biểu đồ lưu lượng theo thời gian thực.
+- **🎥 Giám sát Camera (Camera Monitor):** Xem luồng video trực tiếp (Livestream) từ các máy trạm (Booth) và trạng thái nhận diện khuôn mặt Real-time.
+- **⚠️ Log Cảnh báo (Alert Logs):** Theo dõi các sự kiện bất thường (ví dụ: phát hiện người lạ, lỗi mất kết nối máy trạm, v.v.).
+- **📝 Nhật ký Điểm danh (Attendance Logs):** Tra cứu, lọc và xuất dữ liệu điểm danh hàng ngày của nhân sự.
+- **👥 Quản lý Nhân sự (Personnel Management):** Thêm, sửa, xóa thông tin nhân viên/sinh viên và quản lý hình ảnh khuôn mặt (Face ID) để đồng bộ xuống các trạm biên.
+
+## 🚀 Hướng dẫn cài đặt & Chạy dự án (Getting Started)
+
+Đầu tiên, hãy cài đặt các thư viện (nếu chưa cài):
 
 ```bash
+npm install
+# hoặc yarn install / pnpm install
+
 npm run dev
-# or
+# hoặc
 yarn dev
-# or
+# hoặc
 pnpm dev
-# or
+# hoặc
 bun dev
+
+📂 Cấu trúc thư mục dự kiến (Routing)
+Dự án sử dụng cơ chế App Router của Next.js. Cấu trúc các trang sẽ tương ứng với các thư mục trong app/:
+
+app/login/page.tsx -> Trang đăng nhập
+
+app/dashboard/page.tsx -> Trang Tổng quan
+
+app/dashboard/camera/page.tsx -> Trang Giám sát Camera
+
+app/dashboard/alerts/page.tsx -> Trang Log Cảnh báo
+
+app/dashboard/attendance/page.tsx -> Trang Nhật ký Điểm danh
+
+app/dashboard/users/page.tsx -> Trang Quản lý Nhân sự
 ```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
