@@ -19,6 +19,14 @@ export const captureFrame = (
  * Mở webcam, trả về MediaStream.
  * Throws nếu user từ chối permission.
  */
+// export const openCamera = async (
+//     constraints: MediaStreamConstraints = {
+//         video: { width: 640, height: 480, facingMode: "user" },
+//     },
+// ): Promise<MediaStream> => {
+//     return navigator.mediaDevices.getUserMedia(constraints);
+// };
+
 export const openCamera = async (
     constraints: MediaStreamConstraints = {
         video: { width: 640, height: 480, facingMode: "user" },

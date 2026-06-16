@@ -42,6 +42,8 @@ const RegisterPage = () => {
                     statusText={statusText}
                     statusReason={statusReason}
                     onCancel={cancelRegistration}
+                    isPaused={false}
+                    instruction="Nhìn thẳng vào camera"
                 />
             )}
             {step === "processing" && <ProcessingStep />}
