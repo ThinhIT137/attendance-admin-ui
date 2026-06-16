@@ -1,10 +1,13 @@
 import HeaderDashboardComponent from "@/components/layout/HeaderDashboardComponents";
+import { LoadingProvider } from "@/context/LoadingContext";
 
 const layoutDashboard = ({ children }: { children: React.ReactNode }) => {
     return (
-        <body>
-            <HeaderDashboardComponent>{children}</HeaderDashboardComponent>
-        </body>
+        <div className="min-h-full flex flex-col">
+            <LoadingProvider>
+                <HeaderDashboardComponent>{children}</HeaderDashboardComponent>
+            </LoadingProvider>
+        </div>
     );
 };
 
