@@ -4,13 +4,19 @@ import { stopStream, captureFrame, openCamera } from "@/libs/Webcam";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const FRAME_INTERVAL_MS = 200;
+const PAUSE_MS = 5000;
 
 const INSTRUCTIONS = [
     "Vui lòng nhìn thẳng vào camera",
-    "Từ từ quay mặt sang TRÁI",
-    "Từ từ quay mặt sang PHẢI",
-    "Ngẩng mặt LÊN một chút",
-    "Cúi mặt XUỐNG một chút",
+    "Vui lòng nhìn thẳng vào camera",
+    "Vui lòng nhìn thẳng vào camera",
+    "Vui lòng nhìn thẳng vào camera",
+    "Vui lòng nhìn thẳng vào camera",
+
+    // "Từ từ quay mặt sang TRÁI",
+    // "Từ từ quay mặt sang PHẢI",
+    // "Ngẩng mặt LÊN một chút",
+    // "Cúi mặt XUỐNG một chút",
     "Đã xong, đang xử lý dữ liệu!",
 ];
 
@@ -45,55 +51,34 @@ export function useRegisterSession(): RegisterSessionState &
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const sessionIdRef = useRef<string | null>(null);
     const streamRef = useRef<MediaStream | null>(null);
+    const pendingStreamRef = useRef<MediaStream | null>(null);
     const shotsRef = useRef(0);
-    const isPausedRef = useRef(false);
+    const isFinishingRef = useRef(false);
+    const isSendingRef = useRef(false);
 
     const [step, setStep] = useState<RegisterStep>("name");
     const [currentName, setCurrentName] = useState("");
     const [shots, setShots] = useState(0);
     const [maxShots, setMaxShots] = useState(5);
     const [progress, setProgress] = useState(0);
-    const [statusText, setStatusText] = useState("Initializing...");
+    const [statusText, setStatusText] = useState("");
     const [statusReason, setStatusReason] = useState("—");
     const [doneMessage, setDoneMessage] = useState("");
     const [error, setError] = useState("");
     const [instruction, setInstruction] = useState(INSTRUCTIONS[0]);
     const [isPaused, setIsPaused] = useState(false);
 
-    const speakInstruction = useCallback((text: string) => {
-        if ("speechSynthesis" in window) {
-            window.speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = "vi-VN";
-            utterance.rate = 0.95; // Tốc độ vừa phải
-            utterance.pitch = 1;
-
-            const voices = window.speechSynthesis.getVoices();
-            const viVoice = voices.find((v) => v.lang === "vi-VN");
-            if (viVoice) utterance.voice = viVoice;
-
-            window.speechSynthesis.speak(utterance);
-        }
-    }, []);
-
+    // Gán stream sau khi CameraStep mount
     useEffect(() => {
-        if (step === "camera") {
-            speakInstruction(instruction);
+        if (step === "camera" && pendingStreamRef.current && videoRef.current) {
+            videoRef.current.srcObject = pendingStreamRef.current;
+            streamRef.current = pendingStreamRef.current;
+            pendingStreamRef.current = null;
         }
-    }, [instruction, step, speakInstruction]);
+    }, [step]);
 
-    // Dùng một plain function, bọc trong useEffect riêng để cleanup
-    function stopCapture() {
-        if (intervalRef.current) {
-            clearInterval(intervalRef.current);
-            intervalRef.current = null;
-        }
-        stopStream(streamRef.current);
-        streamRef.current = null;
-    }
-
+    // Cleanup khi unmount
     useEffect(() => {
-        // trả về cleanup function — chạy khi unmount
         return () => {
             if (intervalRef.current) clearInterval(intervalRef.current);
             stopStream(streamRef.current);
@@ -101,12 +86,51 @@ export function useRegisterSession(): RegisterSessionState &
         };
     }, []);
 
-    // ── finish registration ─────────────────────────────────────────────────────
+    // Text-to-speech
+    const speakInstruction = useCallback((text: string) => {
+        if (!("speechSynthesis" in window)) return;
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = "vi-VN";
+        utterance.rate = 0.95;
+        const viVoice = window.speechSynthesis
+            .getVoices()
+            .find((v) => v.lang === "vi-VN");
+        if (viVoice) utterance.voice = viVoice;
+        window.speechSynthesis.speak(utterance);
+    }, []);
+
+    useEffect(() => {
+        if (step === "camera") speakInstruction(instruction);
+    }, [instruction, step, speakInstruction]);
+
+    // ── Helpers ───────────────────────────────────────────────────────────────
+
+    function stopInterval() {
+        if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+            intervalRef.current = null;
+        }
+    }
+
+    function startInterval(sid: string) {
+        intervalRef.current = setInterval(
+            () => sendFrame(sid),
+            FRAME_INTERVAL_MS,
+        );
+    }
+
+    function stopCapture() {
+        stopInterval();
+        stopStream(streamRef.current);
+        streamRef.current = null;
+    }
+
+    // ── Finish registration ───────────────────────────────────────────────────
 
     async function finishRegistration(sid: string) {
         stopCapture();
         setStep("processing");
-
         try {
             const data = await registerApi.finish(sid);
             setDoneMessage(
@@ -114,16 +138,19 @@ export function useRegisterSession(): RegisterSessionState &
             );
             setStep("done");
         } catch (err: unknown) {
+            isFinishingRef.current = false;
             const msg = err instanceof Error ? err.message : "Unknown error";
             setError(`Registration failed: ${msg}`);
             setStep("name");
         }
     }
 
-    // ── Send 1 frame ────────────────────────────────────────────────────────────
+    // ── Send 1 frame ──────────────────────────────────────────────────────────
 
     async function sendFrame(sid: string) {
-        if (isPausedRef.current) return;
+        if (isFinishingRef.current) return;
+        if (isSendingRef.current) return;
+        isSendingRef.current = true;
 
         const video = videoRef.current;
         const canvas = canvasRef.current;
@@ -134,40 +161,42 @@ export function useRegisterSession(): RegisterSessionState &
             const image = captureFrame(video, canvas);
             data = await registerApi.sendFrame(sid, image);
         } catch {
+            isSendingRef.current = false;
             return;
         }
 
+        setProgress(data.progress ?? 0);
+
+        // Tấm mới được chụp → dừng interval, pause 5s, restart
         if (data.shots > shotsRef.current) {
+            shotsRef.current = data.shots;
             setShots(data.shots);
-            setProgress(data.progress);
-            if (data.shots < maxShots) {
-                // Đổi câu hướng dẫn tiếp theo
-                setInstruction(INSTRUCTIONS[data.shots]);
+            stopInterval();
+            setIsPaused(true);
+            setInstruction(
+                data.shots < maxShots
+                    ? INSTRUCTIONS[data.shots]
+                    : INSTRUCTIONS[5],
+            );
 
-                // BẬT HÃM PHANH (2.5 giây để user nghe và xoay mặt)
-                setIsPaused(true);
-                isPausedRef.current = true;
-
-                setTimeout(() => {
-                    setIsPaused(false);
-                    isPausedRef.current = false;
-                }, 2500);
-            } else {
-                setInstruction(INSTRUCTIONS[5]);
-            }
-        } else {
-            // Chỉ cập nhật state nếu chưa chụp xong tấm mới
-            setShots(data.shots);
+            setTimeout(() => {
+                setIsPaused(false);
+                if (sessionIdRef.current && !isFinishingRef.current) {
+                    startInterval(sessionIdRef.current);
+                }
+            }, PAUSE_MS);
         }
 
         switch (data.status) {
             case "NO_FACE":
                 setStatusText("No face detected");
                 setStatusReason("Move closer to the camera");
+                setProgress(0);
                 break;
             case "INVALID":
                 setStatusText("Adjust your position");
                 setStatusReason(data.reasons?.join(", ") ?? "—");
+                setProgress(0);
                 break;
             case "STABILIZING":
                 setStatusText("Hold still…");
@@ -180,19 +209,19 @@ export function useRegisterSession(): RegisterSessionState &
                 setStatusReason(`${data.shots} / ${data.max_shots} shots`);
                 break;
             case "COMPLETE":
-                setStatusText("Done!");
-                setStatusReason("Processing…");
-                clearInterval(intervalRef.current!);
-                intervalRef.current = null;
+                isFinishingRef.current = true;
+                stopInterval();
                 finishRegistration(sid);
                 break;
         }
+        isSendingRef.current = false;
     }
 
-    // ── Public actions ──────────────────────────────────────────────────────────
+    // ── Public actions ────────────────────────────────────────────────────────
 
     async function startRegistration(name: string) {
         setError("");
+        isFinishingRef.current = false;
 
         let sid: string;
         let max: number;
@@ -206,43 +235,44 @@ export function useRegisterSession(): RegisterSessionState &
             return;
         }
 
-        sessionIdRef.current = sid;
-        setCurrentName(name);
-        setMaxShots(max);
-
+        let stream: MediaStream;
         try {
-            const stream = await openCamera();
-            streamRef.current = stream;
-            if (videoRef.current) videoRef.current.srcObject = stream;
+            stream = await openCamera();
         } catch {
             setError("Camera access denied. Please allow camera permission.");
             return;
         }
 
-        setStep("camera");
+        sessionIdRef.current = sid;
+        pendingStreamRef.current = stream;
+        shotsRef.current = 0;
+
+        setCurrentName(name);
+        setMaxShots(max);
         setShots(0);
         setProgress(0);
         setStatusText("Look at the camera…");
         setStatusReason("—");
         setInstruction(INSTRUCTIONS[0]);
         setIsPaused(false);
-        isPausedRef.current = false;
+        setStep("camera");
 
-        intervalRef.current = setInterval(
-            () => sendFrame(sid),
-            FRAME_INTERVAL_MS,
-        );
+        startInterval(sid);
     }
 
     function cancelRegistration() {
         stopCapture();
         sessionIdRef.current = null;
+        isFinishingRef.current = false;
+        shotsRef.current = 0;
         setShots(0);
         setProgress(0);
         setStep("name");
     }
 
     function resetForm() {
+        shotsRef.current = 0;
+        isFinishingRef.current = false;
         setShots(0);
         setProgress(0);
         setDoneMessage("");

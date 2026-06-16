@@ -24,6 +24,8 @@ const RegisterPage = () => {
         startRegistration,
         cancelRegistration,
         resetForm,
+        instruction, // ← thêm
+        isPaused,
     } = useRegisterSession();
 
     return (
@@ -42,8 +44,8 @@ const RegisterPage = () => {
                     statusText={statusText}
                     statusReason={statusReason}
                     onCancel={cancelRegistration}
-                    isPaused={false}
-                    instruction="Nhìn thẳng vào camera"
+                    isPaused={isPaused}
+                    instruction={instruction}
                 />
             )}
             {step === "processing" && <ProcessingStep />}

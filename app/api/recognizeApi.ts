@@ -2,9 +2,13 @@ import { RecognizeFrameResponse } from "@/libs/Recognition";
 import { api } from "./api";
 
 export const recognizeApi = {
-    sendFrame: (image: string) => {
-        api.post<RecognizeFrameResponse>("/api/recognize/frame", {
-            image,
-        }).then((r) => r.data);
+    sendFrame: async (image: string) => {
+        const res = await api.post<RecognizeFrameResponse>(
+            "/api/recognize/frame",
+            {
+                image,
+            },
+        );
+        return res.data;
     },
 };
