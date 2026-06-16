@@ -157,9 +157,9 @@ export function useRecognizeSession(): RecognizeSessionState &
                 setStatusText("Unknown face");
                 setStatusType("warning");
 
-                setTimeout(() => {
-                    speak("điểm danh không thành công");
-                }, 2000);
+                // setTimeout(() => {
+                //     speak("điểm danh không thành công");
+                // }, 2000);
             }
         } catch {
             // silent
