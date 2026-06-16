@@ -79,7 +79,7 @@ const Recognize = () => {
                     </div>
                 </div>
 
-                {/* ── BẢNG ĐIỀU KHIỂN ────────────────── */}
+                {/* ── BẢNG ĐIỀU KHIỂN ──────────────────
                 <div className="w-full flex flex-col gap-4 bg-white/[0.04] border border-white/[0.08] rounded-[2rem] p-6 backdrop-blur-xl shadow-2xl">
                     <div className="flex justify-between items-center bg-white/5 rounded-2xl p-4 border border-white/5">
                         <span className="text-sm text-white/50 uppercase tracking-widest font-bold">
@@ -108,7 +108,7 @@ const Recognize = () => {
                             Dashboard
                         </a>
                     </div>
-                </div>
+                </div> */}
             </div>
         </div>
     );
