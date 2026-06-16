@@ -39,7 +39,7 @@ const Page = () => {
                 <div className="flex flex-col items-center mb-12 md:mb-16 text-center">
                     <div className="relative w-32 h-32 md:w-40 md:h-40 mb-6 drop-shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-transform hover:scale-105 duration-300">
                         <Image
-                            src="/logo.svg" // Nhớ thêm dấu / đằng trước để Next.js lấy đúng file trong folder public
+                            src="/logo.png" // Nhớ thêm dấu / đằng trước để Next.js lấy đúng file trong folder public
                             alt="Logo"
                             fill
                             className="object-contain"

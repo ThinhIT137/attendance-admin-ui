@@ -1,5 +1,6 @@
 import { recognizeApi } from "@/app/api/recognizeApi";
 import { captureFrame, openCamera, stopStream } from "@/libs/Webcam";
+import { time } from "console";
 import { useEffect, useRef, useState } from "react";
 
 const FRAME_INTERVAL_MS = 400;
@@ -29,6 +30,8 @@ export function useRecognizeSession(): RecognizeSessionState &
     const streamRef = useRef<MediaStream | null>(null);
     const isSendingRef = useRef(false);
 
+    const lastSpeakTimeRef = useRef<number>(0);
+
     const [isRunning, setIsRunning] = useState(false);
     const [statusText, setStatusText] = useState("Stopped");
     const [statusType, setStatusType] = useState<
@@ -46,6 +49,23 @@ export function useRecognizeSession(): RecognizeSessionState &
             stopStream(streamRef.current);
         };
     }, []);
+
+    // ===== HÀM ĐỌC GIỌNG NÓI =====
+    function speak(text: string, force = false) {
+        if (!("speechSynthesis" in window)) return; // Bỏ qua nếu thiết bị không hỗ trợ
+
+        const now = Date.now();
+        // Delay 3 giây giữa mỗi lần đọc để không bị spam lặp chữ (trừ khi ép buộc đọc ngay)
+        if (!force && now - lastSpeakTimeRef.current < 3000) return;
+
+        window.speechSynthesis.cancel(); // Ngắt câu cũ đang đọc dở (nếu có)
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = "vi-VN"; // Set giọng tiếng Việt
+        utterance.rate = 1.0; // Tốc độ đọc bình thường
+
+        window.speechSynthesis.speak(utterance);
+        lastSpeakTimeRef.current = now;
+    }
 
     function stopLoop() {
         if (intervalRef.current) {
@@ -129,11 +149,17 @@ export function useRecognizeSession(): RecognizeSessionState &
 
                 if (data.logged) {
                     setLastLogged(`✅ ${display} — just now`);
+
+                    speak(`${display} điểm danh thành công`, true);
                 }
             } else {
                 setRecognizedName(null);
                 setStatusText("Unknown face");
                 setStatusType("warning");
+
+                setTimeout(() => {
+                    speak("điểm danh không thành công");
+                }, 2000);
             }
         } catch {
             // silent

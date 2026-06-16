@@ -29,7 +29,7 @@ const Recognize = () => {
                         autoPlay
                         playsInline
                         muted
-                        className="block w-full h-[600px] sm:h-[720px] object-cover -scale-x-100"
+                        className="block w-full h-[600px] sm:h-[720px] object-cover -scale-x-100 bg-white"
                     />
                     <canvas ref={canvasRef} className="hidden" />
 

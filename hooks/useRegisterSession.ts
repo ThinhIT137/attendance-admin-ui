@@ -8,15 +8,10 @@ const PAUSE_MS = 5000;
 
 const INSTRUCTIONS = [
     "Vui lòng nhìn thẳng vào camera",
-    "Vui lòng nhìn thẳng vào camera",
-    "Vui lòng nhìn thẳng vào camera",
-    "Vui lòng nhìn thẳng vào camera",
-    "Vui lòng nhìn thẳng vào camera",
-
-    // "Từ từ quay mặt sang TRÁI",
-    // "Từ từ quay mặt sang PHẢI",
-    // "Ngẩng mặt LÊN một chút",
-    // "Cúi mặt XUỐNG một chút",
+    "Từ từ quay mặt sang TRÁI",
+    "Từ từ quay mặt sang PHẢI",
+    "Ngẩng mặt LÊN một chút",
+    "Cúi mặt XUỐNG một chút",
     "Đã xong, đang xử lý dữ liệu!",
 ];
 
