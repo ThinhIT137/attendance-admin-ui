@@ -1,5 +1,6 @@
 import { GetUsersResponse, UserAttendanceResponse } from "@/libs/Admin";
-import { api } from "./api";
+import { api, api_camera } from "./api";
+import { CameraData } from "@/libs/Webcam";
 
 export const admin = {
     user: () => {},
@@ -48,6 +49,11 @@ export const admin = {
         const res = await api.get<GetUsersResponse>("/api/users", {
             params: { name, page, limit },
         });
+        return res.data;
+    },
+
+    webRTC_camera: async (): Promise<CameraData[]> => {
+        const res = await api_camera.get("/api/cameras");
         return res.data;
     },
 };

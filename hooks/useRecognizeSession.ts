@@ -123,6 +123,8 @@ export function useRecognizeSession(): RecognizeSessionState &
             setConsecutive(data.consecutive ?? 0);
             setRequired(data.required ?? 3);
 
+            if (data) console.log(data);
+
             if (data.status === "no_face") {
                 setRecognizedName(null);
                 setConfidence(0);

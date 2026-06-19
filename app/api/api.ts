@@ -26,3 +26,31 @@ api.interceptors.response.use(
         return Promise.reject(error);
     },
 );
+
+export const api_camera = axios.create({
+    baseURL:
+        process.env.NEXT_PUBLIC_FLASK_CAMERA_URL ?? "http://localhost:8000",
+    headers: { "Content-Type": "application/json" },
+    timeout: 10000,
+});
+
+api_camera.interceptors.request.use(
+    (config) => {
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    },
+);
+
+api_camera.interceptors.response.use(
+    (response) => {
+        if (response && response.data) {
+            return response;
+        }
+        return response;
+    },
+    (error) => {
+        return Promise.reject(error);
+    },
+);

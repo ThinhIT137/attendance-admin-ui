@@ -1,4 +1,14 @@
 /**
+ * Dữ liệu đường dẫn WebRTC camera
+ */
+export type CameraData = {
+    id: string;
+    name: string;
+    url: string;
+    ws_port: number; // Next.js nhận được port chuẩn xác từ Server trả về!
+};
+
+/**
  * Chụp 1 frame từ <video> element, trả về base64 JPEG string.
  * Canvas được reuse để tránh GC pressure khi gọi liên tục.
  */

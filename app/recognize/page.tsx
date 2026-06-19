@@ -52,17 +52,19 @@ const Recognize = () => {
                         )}
 
                         {/* Khi thành công */}
-                        {statusType === "success" ||
-                            (statusType === "" && recognizedName && (
-                                <div className="bg-emerald-500/80 backdrop-blur-md px-6 py-2.5 rounded-full text-white font-bold text-sm sm:text-base shadow-lg flex items-center gap-2 animate-in fade-in slide-in-from-top-4">
-                                    <span>✅ {recognizedName}</span>
-                                    <span className="text-emerald-100 font-normal border-l border-emerald-400/50 pl-2 ml-1">
-                                        {(confidence * 100).toFixed(0)}%
-                                    </span>
-                                    <span>Điểm danh thành công</span>
-                                </div>
-                            ))}
+                        {(statusType === "success" ||
+                            statusType === "recognized" ||
+                            (statusType === "" && recognizedName)) && (
+                            <div className="bg-emerald-500/80 backdrop-blur-md px-6 py-2.5 rounded-full text-white font-bold text-sm sm:text-base shadow-lg flex items-center gap-2 animate-in fade-in slide-in-from-top-4">
+                                <span>✅ {recognizedName}</span>
 
+                                <span className="text-emerald-100 font-normal border-l border-emerald-400/50 pl-2 ml-1">
+                                    {(confidence * 100).toFixed(0)}%
+                                </span>
+
+                                <span>Điểm danh thành công</span>
+                            </div>
+                        )}
                         {/* Khi đang quét bình thường (Tùy chọn) */}
                         {/* {statusType === "" && isRunning && (
                             <div className="bg-black/40 backdrop-blur-md px-6 py-2 rounded-full text-white/70 font-medium text-sm shadow-lg">
